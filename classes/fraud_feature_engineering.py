@@ -53,8 +53,8 @@ class FraudFeatureEngineer:
         pd.DatetimeIndex: Índice temporal para agregação
         """
         return pd.date_range(
-            start=df['date'].min().floor(self.freq),
-            end=df['date'].max().ceil(self.freq),
+            start=df['date'].min().floor('H'),
+            end=df['date'].max().ceil('H'),
             freq=self.freq
         )
 
@@ -81,7 +81,7 @@ class FraudFeatureEngineer:
 
         return features_df
 
-    def add_behavioral_features(self, features_df, df):
+    def add_behavioral_features(self, features_df, df, window_size_seconds = 3600):
         """
         Adiciona features comportamentais agregadas
 
@@ -89,11 +89,8 @@ class FraudFeatureEngineer:
         features_df (pd.DataFrame): DataFrame para armazenar features
         df (pd.DataFrame): DataFrame com dados brutos
         """
-        # Calcular window_size_seconds baseado na frequência configurada
-        freq_seconds = pd.Timedelta(self.freq).total_seconds()
-        
         # Velocidade de transações (transações por segundo)
-        features_df['txn_velocity'] = features_df['total_transactions'] / freq_seconds
+        features_df['txn_velocity'] = features_df['total_transactions'] / window_size_seconds
 
         # Valor médio por transação
         features_df['avg_txn_value'] = df.groupby(
